@@ -38,12 +38,10 @@ class ProgressiveDeepeningMinimax:
 
     p.join(seconds)
 
-    return self.result
+    if(p.is_alive()):
+      p.terminate()
 
-  def infinite_while(self):
-    i = True
-    while(True):
-      i != i
+    return self.result
 
   def best_movement(self):
     current_best_movement = (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
