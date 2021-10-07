@@ -78,13 +78,13 @@ class ProgressiveDeepeningMinimax:
           primary_shape = self.state.players[(self.n_player + 1) % 2].shape
           secondary_shape = other_shape(self.state.players[(self.n_player + 1) % 2].shape)
           #Check for primary shape
-          if(self.state.players[self.n_player].quota[primary_shape]>0):
+          if(self.state.players[(self.n_player + 1) % 2].quota[primary_shape]>0):
             place(self.state,(self.n_player + 1) % 2,primary_shape,col)
             possible_moves[col*2] = self.minimax(True,depth-1)
             unplace(self.state,(self.n_player + 1) % 2,primary_shape,col)
 
           #Check for secondary shape
-          if(self.state.players[self.n_player].quota[secondary_shape]>0):
+          if(self.state.players[(self.n_player + 1) % 2].quota[secondary_shape]>0):
             place(self.state,(self.n_player + 1) % 2,secondary_shape,col)
             possible_moves[col*2+1] = self.minimax(True,depth-1)
             unplace(self.state,(self.n_player + 1) % 2,secondary_shape,col)
