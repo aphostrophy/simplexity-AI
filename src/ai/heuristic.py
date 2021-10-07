@@ -14,6 +14,7 @@ def heuristic(state:State, player: int):
 
   for col in range(7):
     for row in range(state.board.row-1,-1,-1):
+      #Nanti tambahin kalau win kasih poin + INF atau - INF
       if state.board[row, col].shape == ShapeConstant.BLANK:
         if(row==5):
           if(col==0):
@@ -67,7 +68,4 @@ def heuristic(state:State, player: int):
               sum_colors -= state.board[row,col-1].color == state.players[minimizing_player].color
               sum_shapes -= state.board[row,col-1].shape == state.players[minimizing_player].shape
         break
-
-  print('SUM SHAPE:',sum_shapes)
-  print('SUM COLOR:',sum_colors)
-  print("=======")
+  return (sum_colors,sum_shapes)

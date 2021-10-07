@@ -1,8 +1,9 @@
 import pickle
+import math
 from typing import Tuple
 
 from src.model import Piece, Board, State
-from src.constant import ShapeConstant, GameConstant
+from src.constant import ColorConstant, ShapeConstant, GameConstant
 
 
 def dump(obj, path):
@@ -152,3 +153,38 @@ def place(state: State, n_player: int, shape: str, col: str) -> int:
             return row
 
     return -1
+
+#Tambahan pribadi
+def unplace(state: State, n_player: int, shape: str, col: str) -> int:
+    """
+    [DESC]
+        Function to place piece in board
+    [PARAMS]
+        state = current state in the game
+        n_player = which player (player 1 or 2)
+        shape = shape
+        col = which col
+    [RETURN]
+        -1 if placement is invalid
+        int(row) if placement is valid 
+    """
+
+    for row in range(state.board.row):
+        if state.board[row, col].shape != ShapeConstant.BLANK:
+            piece = Piece(ShapeConstant.BLANK, ColorConstant.BLACK)
+            state.board.set_piece(row, col, piece)
+            state.players[n_player].quota[shape] += 1
+            return row
+
+    return -1
+
+def other_shape(shape: str):
+  return (ShapeConstant.CROSS if shape == ShapeConstant.CIRCLE else ShapeConstant.CIRCLE)
+
+def choose_heuristic(possible_moves: list,maximizing: bool) -> Tuple:
+  print("=========")
+  print(possible_moves)
+  print("=========")
+  if(maximizing):
+    best = -math.inf
+
