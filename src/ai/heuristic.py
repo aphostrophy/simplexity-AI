@@ -1,8 +1,73 @@
 from src.model.state import State
+from src.constant import ShapeConstant, GameConstant
 
-class Heuristic:
-  def __init__(self) -> None:
-      pass
+#Player 0 : RED O (Only have red pieces)
+#Player 1 : BLUE X (Only have blue pieces)
+#Utamakan shape
 
-  def static_eval(state : State):
-    print(state.board.board)
+def heuristic(state:State, player: int):
+  maximizing_player = player
+  minimizing_player = (player + 1) %2
+
+  sum_colors = 0
+  sum_shapes = 0
+
+  for col in range(7):
+    for row in range(state.board.row-1,-1,-1):
+      if state.board[row, col].shape == ShapeConstant.BLANK:
+        if(row==5):
+          if(col==0):
+              sum_colors += state.board[row,col+1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col+1].shape == state.players[maximizing_player].shape
+
+              sum_colors -= state.board[row,col+1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col+1].shape == state.players[minimizing_player].shape
+          elif(col==6):
+              sum_colors += state.board[row,col-1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col-1].shape == state.players[maximizing_player].shape
+
+              sum_colors -= state.board[row,col-1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col-1].shape == state.players[minimizing_player].shape
+          else:
+              sum_colors += state.board[row,col+1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col+1].shape == state.players[maximizing_player].shape
+              sum_colors += state.board[row,col-1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col-1].shape == state.players[maximizing_player].shape
+
+              sum_colors -= state.board[row,col+1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col+1].shape == state.players[minimizing_player].shape
+              sum_colors -= state.board[row,col-1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col-1].shape == state.players[minimizing_player].shape
+        else:
+          sum_colors += state.board[row+1,col].color == state.players[maximizing_player].color
+          sum_shapes += state.board[row+1,col].shape == state.players[maximizing_player].shape
+
+          sum_colors -= state.board[row+1,col].color == state.players[minimizing_player].color
+          sum_shapes -= state.board[row+1,col].shape == state.players[minimizing_player].shape
+          if(col==0):
+              sum_colors += state.board[row,col+1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col+1].shape == state.players[maximizing_player].shape
+
+              sum_colors -= state.board[row,col+1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col+1].shape == state.players[minimizing_player].shape
+          elif(col==6):
+              sum_colors += state.board[row,col-1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col-1].shape == state.players[maximizing_player].shape
+
+              sum_colors -= state.board[row,col-1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col-1].shape == state.players[minimizing_player].shape
+          else:
+              sum_colors += state.board[row,col+1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col+1].shape == state.players[maximizing_player].shape
+              sum_colors += state.board[row,col-1].color == state.players[maximizing_player].color
+              sum_shapes += state.board[row,col-1].shape == state.players[maximizing_player].shape
+
+              sum_colors -= state.board[row,col+1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col+1].shape == state.players[minimizing_player].shape
+              sum_colors -= state.board[row,col-1].color == state.players[minimizing_player].color
+              sum_shapes -= state.board[row,col-1].shape == state.players[minimizing_player].shape
+        break
+
+  print('SUM SHAPE:',sum_shapes)
+  print('SUM COLOR:',sum_colors)
+  print("=======")

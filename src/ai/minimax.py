@@ -5,7 +5,7 @@ from time import time
 from src.constant import ShapeConstant
 from src.model import State
 
-from src.ai.heuristic import Heuristic;
+from src.ai.heuristic import heuristic;
 
 from typing import Tuple, List
 
@@ -16,8 +16,6 @@ class Minimax:
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
-
-        # best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
 
         pdm = ProgressiveDeepeningMinimax(state,n_player)
 
@@ -44,5 +42,12 @@ class ProgressiveDeepeningMinimax:
     return self.result
 
   def best_movement(self):
-    current_best_movement = (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-    self.result = current_best_movement
+    heuristic(self.state,0)
+    depth = 1
+    while(True):
+      current_best_movement = self.minimax(True,depth)
+      self.result = current_best_movement
+      depth+=1
+
+  def minimax(self, maximizing: bool,depth : int):
+    return (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
