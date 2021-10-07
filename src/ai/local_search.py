@@ -16,4 +16,4 @@ class LocalSearch:
 
         best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
 
-        return None
+        return best_movement

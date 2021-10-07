@@ -182,9 +182,40 @@ def other_shape(shape: str):
   return (ShapeConstant.CROSS if shape == ShapeConstant.CIRCLE else ShapeConstant.CIRCLE)
 
 def choose_heuristic(possible_moves: list,maximizing: bool) -> Tuple:
-  print("=========")
-  print(possible_moves)
-  print("=========")
   if(maximizing):
-    best = -math.inf
+    max_tuple = (-math.inf,0)
+    for tuple in possible_moves:
+      if(tuple!=None):
+        tuple_sum = tuple[0] + tuple[1]
+        if(tuple_sum > max_tuple[0] + max_tuple[1]):
+          max_tuple = tuple
+        elif(tuple_sum == max_tuple[0] + max_tuple[1]):
+          if(tuple[1] > max_tuple[1]): #Tie Breaker Shape
+            max_tuple = tuple
+    return max_tuple
+  else:
+    min_tuple = (math.inf,0)
+    for tuple in possible_moves:
+      if(tuple!=None):
+        tuple_sum = tuple[0] + tuple[1]
+        if(tuple_sum < min_tuple[0] + min_tuple[1]):
+          min_tuple = tuple
+        elif(tuple_sum == min_tuple[0] + min_tuple[1]):
+          if(tuple[1] < min_tuple[1]): #Tie Breaker Shape
+            min_tuple = tuple
+    return min_tuple
 
+def choose_move(possible_moves:list):
+  max_tuple = (-math.inf,0)
+  col = -1
+  for idx,tuple in enumerate(possible_moves):
+    if(tuple!=None):
+      tuple_sum = tuple[0] + tuple[1]
+      if(tuple_sum > max_tuple[0] + max_tuple[1]):
+        max_tuple = tuple
+        col = idx
+      elif(tuple_sum == max_tuple[0] + max_tuple[1]):
+        if(tuple[1] > max_tuple[1]): #Tie Breaker Shape
+          max_tuple = tuple
+          col = idx
+  return (col//2 + col % 2, col % 2)

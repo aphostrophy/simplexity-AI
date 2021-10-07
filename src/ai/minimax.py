@@ -4,7 +4,7 @@ from time import time
 
 from src.constant import ShapeConstant
 from src.model import State, Board
-from src.utility import choose_heuristic, other_shape, place, unplace
+from src.utility import choose_heuristic, choose_move, other_shape, place, unplace
 
 from src.ai.heuristic import heuristic;
 
@@ -18,8 +18,6 @@ class Minimax:
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
 
-        print('PLAYER:',n_player + 1)
-
         pdm = ProgressiveDeepeningMinimax(state,n_player)
 
         best_movement = pdm.result_after(thinking_time)
@@ -31,7 +29,8 @@ class ProgressiveDeepeningMinimax:
   def __init__(self, state: State, n_player: int):
     self.state = state
     self.n_player = n_player
-    self.result = (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+    self.result_col = multiprocessing.Value('i',0)
+    self.result_shape = multiprocessing.Value('i',0)
 
   def result_after(self,seconds):
     p = multiprocessing.Process(target=self.best_movement, name="best_movement", args=())
@@ -42,13 +41,14 @@ class ProgressiveDeepeningMinimax:
     if(p.is_alive()):
       p.terminate()
 
-    return self.result
+    return (self.result_col.value, self.state.players[self.n_player].shape if self.result_shape.value==0 else other_shape(self.state.players[self.n_player].shape))
 
   def best_movement(self):
-    depth = 1
+    self.result = (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+    self.depth_limit = 1
     while(True):
-      self.result = self.minimax(maximizing= True,depth= depth)
-      depth+=1
+      (self.result_col.value,self.result_shape.value) = self.minimax(maximizing= True,depth= self.depth_limit)
+      self.depth_limit+=1
 
   def minimax(self, maximizing: bool,depth : int):
     if(depth==0):
@@ -75,7 +75,8 @@ class ProgressiveDeepeningMinimax:
           place(self.state,(self.n_player + 1) % 2,other_shape(self.state.players[(self.n_player + 1) % 2].shape),col)
           possible_moves[col*2+1] = self.minimax(True,depth-1)
           unplace(self.state,(self.n_player + 1) % 2,other_shape(self.state.players[(self.n_player + 1) % 2].shape),col)
-    
-    choose_heuristic(possible_moves,maximizing)
 
-    return (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+    if(depth == self.depth_limit): #Pasti Maximizing
+      return choose_move(possible_moves)
+
+    return choose_heuristic(possible_moves,maximizing)
