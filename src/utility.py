@@ -64,7 +64,8 @@ def check_streak(board: Board, row: int, col: int) -> Tuple[str, str, str]:
     if piece.shape == ShapeConstant.BLANK:
         return None
 
-    streak_way = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+    streak_way = [(-1, 0), (1, 0), (0, -1), (0, 1),
+                  (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
     for prior in GameConstant.WIN_PRIOR:
         mark = 0
@@ -101,7 +102,7 @@ def check_streak(board: Board, row: int, col: int) -> Tuple[str, str, str]:
                     if prior == GameConstant.SHAPE:
                         if piece.shape == player[0]:
                             return (prior, player)
-                            
+
                     elif prior == GameConstant.COLOR:
                         if piece.color == player[1]:
                             return (prior, player)
@@ -154,7 +155,9 @@ def place(state: State, n_player: int, shape: str, col: str) -> int:
 
     return -1
 
-#Tambahan pribadi
+# Tambahan pribadi
+
+
 def unplace(state: State, n_player: int, shape: str, col: str) -> int:
 
     for row in range(state.board.row):
@@ -166,47 +169,51 @@ def unplace(state: State, n_player: int, shape: str, col: str) -> int:
 
     return -1
 
+
 def other_shape(shape: str):
-  return (ShapeConstant.CROSS if shape == ShapeConstant.CIRCLE else ShapeConstant.CIRCLE)
+    return (ShapeConstant.CROSS if shape == ShapeConstant.CIRCLE else ShapeConstant.CIRCLE)
 
-def choose_heuristic(possible_moves: list,maximizing: bool) -> Tuple:
-  if(maximizing):
-    max_tuple = (-math.inf,-math.inf)
-    for tuple in possible_moves:
-      if(tuple!=None):
-        tuple_sum = tuple[0] + tuple[1]
-        if(tuple_sum > max_tuple[0] + max_tuple[1]):
-          max_tuple = tuple
-        elif(tuple_sum == max_tuple[0] + max_tuple[1]):
-          if(tuple[1] > max_tuple[1]): #Tie Breaker Shape
-            max_tuple = tuple
-    return max_tuple
-  else:
-    min_tuple = (math.inf,math.inf)
-    for tuple in possible_moves:
-      if(tuple!=None):
-        tuple_sum = tuple[0] + tuple[1]
-        if(tuple_sum < min_tuple[0] + min_tuple[1]):
-          min_tuple = tuple
-        elif(tuple_sum == min_tuple[0] + min_tuple[1]):
-          if(tuple[1] < min_tuple[1]): #Tie Breaker Shape
-            min_tuple = tuple
-    return min_tuple
 
-def choose_move(possible_moves:list): #Maximizing move
-  max_tuple = (-math.inf,0)
-  col = -1
-  for idx,tuple in enumerate(possible_moves):
-    if(tuple!=None):
-      tuple_sum = tuple[0] + tuple[1]
-      if(tuple_sum > max_tuple[0] + max_tuple[1]):
-        max_tuple = tuple
-        col = idx
-      elif(tuple_sum == max_tuple[0] + max_tuple[1]):
-        if(tuple[1] > max_tuple[1]): #Tie Breaker Shape
-          max_tuple = tuple
-          col = idx
-  return (col//2 + col % 2, col % 2,max_tuple[0] == math.inf)
+def choose_heuristic(possible_moves: list, maximizing: bool) -> Tuple:
+    if(maximizing):
+        max_tuple = (-math.inf, -math.inf)
+        for tuple in possible_moves:
+            if(tuple != None):
+                tuple_sum = tuple[0] + tuple[1]
+                if(tuple_sum > max_tuple[0] + max_tuple[1]):
+                    max_tuple = tuple
+                elif(tuple_sum == max_tuple[0] + max_tuple[1]):
+                    if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
+                        max_tuple = tuple
+        return max_tuple
+    else:
+        min_tuple = (math.inf, math.inf)
+        for tuple in possible_moves:
+            if(tuple != None):
+                tuple_sum = tuple[0] + tuple[1]
+                if(tuple_sum < min_tuple[0] + min_tuple[1]):
+                    min_tuple = tuple
+                elif(tuple_sum == min_tuple[0] + min_tuple[1]):
+                    if(tuple[1] < min_tuple[1]):  # Tie Breaker Shape
+                        min_tuple = tuple
+        return min_tuple
+
+
+def choose_move(possible_moves: list):  # Maximizing move
+    max_tuple = (-math.inf, 0)
+    col = -1
+    for idx, tuple in enumerate(possible_moves):
+        if(tuple != None):
+            tuple_sum = tuple[0] + tuple[1]
+            if(tuple_sum > max_tuple[0] + max_tuple[1]):
+                max_tuple = tuple
+                col = idx
+            elif(tuple_sum == max_tuple[0] + max_tuple[1]):
+                if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
+                    max_tuple = tuple
+                    col = idx
+    return (col//2 + col % 2, col % 2, max_tuple[0] == 88888)
+
 
 def place_debug(state: State, n_player: int, shape: str, col: str) -> int:
     """
@@ -222,7 +229,7 @@ def place_debug(state: State, n_player: int, shape: str, col: str) -> int:
         int(row) if placement is valid 
     """
     if state.players[n_player].quota[shape] == 0:
-        print('Shape:',shape,'is empty!')
+        print('Shape:', shape, 'is empty!')
         return -1
 
     for row in range(state.board.row - 1, -1, -1):
@@ -231,5 +238,5 @@ def place_debug(state: State, n_player: int, shape: str, col: str) -> int:
             state.board.set_piece(row, col, piece)
             state.players[n_player].quota[shape] -= 1
             return row
-    print('Column',col,'is full')
+    print('Column', col, 'is full')
     return -1
