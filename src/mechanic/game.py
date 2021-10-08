@@ -4,7 +4,7 @@ from time import time
 from src.ai import Minimax
 from src.model import Board, Player, State, Config
 from src.constant import ShapeConstant, GameConstant, Path
-from src.utility import is_out, is_win, is_full, place
+from src.utility import is_out, is_win, is_full, place, place_debug
 
 
 class Game:

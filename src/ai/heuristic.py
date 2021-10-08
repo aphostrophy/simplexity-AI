@@ -17,9 +17,9 @@ def heuristic(state:State, player: int):
   winning_tuple = is_win(state.board)
   if(winning_tuple != None):
     if(winning_tuple[0] == state.players[maximizing_player].shape):
-      return (math.inf,0)
+      return (math.inf,math.inf)
     else:
-      return (-math.inf,0)
+      return (-math.inf,math.inf)
 
   for col in range(7):
     for row in range(state.board.row-1,-1,-1):

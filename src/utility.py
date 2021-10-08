@@ -156,18 +156,6 @@ def place(state: State, n_player: int, shape: str, col: str) -> int:
 
 #Tambahan pribadi
 def unplace(state: State, n_player: int, shape: str, col: str) -> int:
-    """
-    [DESC]
-        Function to place piece in board
-    [PARAMS]
-        state = current state in the game
-        n_player = which player (player 1 or 2)
-        shape = shape
-        col = which col
-    [RETURN]
-        -1 if placement is invalid
-        int(row) if placement is valid 
-    """
 
     for row in range(state.board.row):
         if state.board[row, col].shape != ShapeConstant.BLANK:
@@ -219,3 +207,29 @@ def choose_move(possible_moves:list):
           max_tuple = tuple
           col = idx
   return (col//2 + col % 2, col % 2)
+
+def place_debug(state: State, n_player: int, shape: str, col: str) -> int:
+    """
+    [DESC]
+        Function to place piece in board
+    [PARAMS]
+        state = current state in the game
+        n_player = which player (player 1 or 2)
+        shape = shape
+        col = which col
+    [RETURN]
+        -1 if placement is invalid
+        int(row) if placement is valid 
+    """
+    if state.players[n_player].quota[shape] == 0:
+        print('Shape:',shape,'is empty!')
+        return -1
+
+    for row in range(state.board.row - 1, -1, -1):
+        if state.board[row, col].shape == ShapeConstant.BLANK:
+            piece = Piece(shape, GameConstant.PLAYER_COLOR[n_player])
+            state.board.set_piece(row, col, piece)
+            state.players[n_player].quota[shape] -= 1
+            return row
+    print('Column',col,'is full')
+    return -1

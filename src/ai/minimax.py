@@ -22,6 +22,8 @@ class Minimax:
 
         best_movement = pdm.result_after(thinking_time)
 
+        print(f'BEST MOVE PLAYER {n_player+1}',best_movement)
+
         return best_movement
 
 
@@ -90,6 +92,7 @@ class ProgressiveDeepeningMinimax:
             unplace(self.state,(self.n_player + 1) % 2,secondary_shape,col)
 
     if(depth == self.depth_limit): #Pasti Maximizing
+      print("POSSIBLE MOVES",possible_moves)
       return choose_move(possible_moves)
 
     return choose_heuristic(possible_moves,maximizing)
