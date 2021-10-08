@@ -1,6 +1,7 @@
 import random
 import multiprocessing, copy
 from time import time
+from src.utility import is_win
 
 from src.constant import ShapeConstant
 from src.model import State, Board
@@ -9,6 +10,8 @@ from src.utility import choose_heuristic, choose_move, other_shape, place, unpla
 from src.ai.heuristic import heuristic;
 
 from typing import Tuple, List
+import math
+
 
 
 class Minimax:
@@ -58,6 +61,13 @@ class ProgressiveDeepeningMinimax:
 
     #possible_moves[0] = col 0 primary shape, 1 = col 0 secondary shape , 2 = col 1 primary shape, 3 = col 1 secondary shape, etc...
     possible_moves = [None for _ in range(14)]
+
+    winning_tuple = is_win(self.state.board)
+    if(winning_tuple != None):
+      if(winning_tuple[0] == self.state.players[self.n_player].shape):
+        return (math.inf,math.inf)
+      else:
+        return (-math.inf,-math.inf)
 
     for col in range(7):
       if(self.state.board[0,col].shape == ShapeConstant.BLANK):

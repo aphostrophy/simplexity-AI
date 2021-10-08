@@ -1,8 +1,5 @@
 from src.model.state import State
 from src.constant import ShapeConstant, GameConstant
-from src.utility import is_win
-import math
-
 #Player 0 : RED O (Only have red pieces)
 #Player 1 : BLUE X (Only have blue pieces)
 #Utamakan shape
@@ -13,13 +10,6 @@ def heuristic(state:State, player: int):
 
   sum_colors = 0
   sum_shapes = 0
-
-  winning_tuple = is_win(state.board)
-  if(winning_tuple != None):
-    if(winning_tuple[0] == state.players[maximizing_player].shape):
-      return (math.inf,math.inf)
-    else:
-      return (-math.inf,-math.inf)
 
   for col in range(7):
     for row in range(state.board.row-1,-1,-1):
