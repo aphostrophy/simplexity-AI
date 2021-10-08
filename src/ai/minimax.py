@@ -48,8 +48,9 @@ class ProgressiveDeepeningMinimax:
   def best_movement(self):
     self.result = (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
     self.depth_limit = 1
-    while(True):
-      (self.result_col.value,self.result_shape.value) = self.minimax(maximizing= True,depth= self.depth_limit)
+    win_found = False
+    while(True and not win_found):
+      (self.result_col.value,self.result_shape.value, win_found) = self.minimax(maximizing= True,depth= self.depth_limit)
       self.depth_limit+=1
 
   def minimax(self, maximizing: bool,depth : int):
@@ -92,7 +93,8 @@ class ProgressiveDeepeningMinimax:
             unplace(self.state,(self.n_player + 1) % 2,secondary_shape,col)
 
     if(depth == self.depth_limit): #Pasti Maximizing
-      print("POSSIBLE MOVES",possible_moves)
+      print(f"POSSIBLE MOVES DEPTH {depth}",possible_moves)
       return choose_move(possible_moves)
-
+      
+    #Standard Case
     return choose_heuristic(possible_moves,maximizing)

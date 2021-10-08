@@ -171,7 +171,7 @@ def other_shape(shape: str):
 
 def choose_heuristic(possible_moves: list,maximizing: bool) -> Tuple:
   if(maximizing):
-    max_tuple = (-math.inf,0)
+    max_tuple = (-math.inf,-math.inf)
     for tuple in possible_moves:
       if(tuple!=None):
         tuple_sum = tuple[0] + tuple[1]
@@ -182,7 +182,7 @@ def choose_heuristic(possible_moves: list,maximizing: bool) -> Tuple:
             max_tuple = tuple
     return max_tuple
   else:
-    min_tuple = (math.inf,0)
+    min_tuple = (math.inf,math.inf)
     for tuple in possible_moves:
       if(tuple!=None):
         tuple_sum = tuple[0] + tuple[1]
@@ -193,7 +193,7 @@ def choose_heuristic(possible_moves: list,maximizing: bool) -> Tuple:
             min_tuple = tuple
     return min_tuple
 
-def choose_move(possible_moves:list):
+def choose_move(possible_moves:list): #Maximizing move
   max_tuple = (-math.inf,0)
   col = -1
   for idx,tuple in enumerate(possible_moves):
@@ -206,7 +206,7 @@ def choose_move(possible_moves:list):
         if(tuple[1] > max_tuple[1]): #Tie Breaker Shape
           max_tuple = tuple
           col = idx
-  return (col//2 + col % 2, col % 2)
+  return (col//2 + col % 2, col % 2,max_tuple[0] == math.inf)
 
 def place_debug(state: State, n_player: int, shape: str, col: str) -> int:
     """
