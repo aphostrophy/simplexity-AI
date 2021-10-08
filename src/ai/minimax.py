@@ -31,8 +31,8 @@ class ProgressiveDeepeningMinimax:
   def __init__(self, state: State, n_player: int):
     self.state = state
     self.n_player = n_player
-    self.result_col = multiprocessing.Value('i',0)
-    self.result_shape = multiprocessing.Value('i',0)
+    self.result_col = multiprocessing.Value('i',random.randint(0, self.state.board.col))
+    self.result_shape = multiprocessing.Value('i',0 if random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]) == ShapeConstant.CROSS else 1)
 
   def result_after(self,seconds):
     p = multiprocessing.Process(target=self.best_movement, name="best_movement", args=())
@@ -46,8 +46,6 @@ class ProgressiveDeepeningMinimax:
     return (self.result_col.value, self.state.players[self.n_player].shape if self.result_shape.value==0 else other_shape(self.state.players[self.n_player].shape))
 
   def best_movement(self):
-    self.result_col = random.randint(0, self.state.board.col)
-    self.result_shape = random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])
     self.depth_limit = 1
     win_found = False
     while(True and not win_found):
