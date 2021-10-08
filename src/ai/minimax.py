@@ -46,7 +46,8 @@ class ProgressiveDeepeningMinimax:
     return (self.result_col.value, self.state.players[self.n_player].shape if self.result_shape.value==0 else other_shape(self.state.players[self.n_player].shape))
 
   def best_movement(self):
-    self.result = (random.randint(0, self.state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+    self.result_col = random.randint(0, self.state.board.col)
+    self.result_shape = random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])
     self.depth_limit = 1
     win_found = False
     while(True and not win_found):
