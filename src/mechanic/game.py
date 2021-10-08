@@ -1,7 +1,7 @@
 import pickle
 from time import time
 
-from src.ai import Minimax
+from src.ai import Minimax, LocalSearch
 from src.model import Board, Player, State, Config
 from src.constant import ShapeConstant, GameConstant, Path
 from src.utility import is_out, is_win, is_full, place, place_debug
@@ -23,6 +23,7 @@ class Game:
         __is_valid -> Check if input is valid
         __placement -> Placement phase for player or bot
     """
+
     def __init__(self, config: Config):
         print(config)
         self.config = config
@@ -44,8 +45,8 @@ class Game:
         if self.config.game_type == GameConstant.BVB:
             if not self.config.is_dump:
                 # You can change model used here
-                model1 = Minimax()
-                model2 = Minimax()
+                model1 = LocalSearch()
+                model2 = LocalSearch()
             else:
                 # Don't change this
                 model1 = pickle.load(open(Path.BVB_P1, "rb"))
@@ -102,7 +103,6 @@ class Game:
                 )
                 print(f'Runtime: {time() - start}')
 
-            
             if self.__is_valid(choosen_col, choosen_shape):
                 break
 
