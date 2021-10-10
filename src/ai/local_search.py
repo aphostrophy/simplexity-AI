@@ -82,16 +82,12 @@ class LocalSearchMinMaxing:
         self.depth_limit = 1
         win_found = False
 
-        # Generate all possible moves
-        possible_moves = self.generateAllMoves(self.state)
-        print(possible_moves)
-
         while(True and not win_found):
             (self.result_col.value, self.result_shape.value, win_found) = self.minimax(
-                maximizing=True, depth=self.depth_limit)
+                maximizing=True, depth=self.depth_limit, is_start=True)
             self.depth_limit += 1
 
-    def minimax(self, maximizing: bool, depth: int):
+    def minimax(self, maximizing: bool, depth: int, is_start: bool):
         if(depth == 0):
             return heuristic(self.state, self.n_player)
 
@@ -105,9 +101,10 @@ class LocalSearchMinMaxing:
             else:
                 return (-88888, -88888)
 
-        # If depth == 1 then use initial move from local search
-        if(depth == 1):
+        # If depth == 1 and the first move then use initial move from local search
+        if(depth == 1 and is_start):
             initial_moves = self.generateAllMoves(self.state)
+            print(initial_moves)
             primary_shape = self.state.players[self.n_player].shape
             secondary_shape = other_shape(
                 self.state.players[self.n_player].shape)
@@ -115,12 +112,12 @@ class LocalSearchMinMaxing:
                 if(move[1]):  # primary shape
                     place(self.state, self.n_player, primary_shape, move[0])
                     possible_moves[move[0] *
-                                   2] = self.minimax(False, depth-1)
+                                   2] = self.minimax(False, depth-1, False)
                     unplace(self.state, self.n_player, primary_shape, move[0])
                 else:
                     place(self.state, self.n_player, secondary_shape, move[0])
                     possible_moves[move[0]*2 +
-                                   1] = self.minimax(False, depth-1)
+                                   1] = self.minimax(False, depth-1, False)
                     unplace(self.state, self.n_player,
                             secondary_shape, move[0])
 
@@ -137,7 +134,7 @@ class LocalSearchMinMaxing:
                             place(self.state, self.n_player,
                                   primary_shape, col)
                             possible_moves[col *
-                                           2] = self.minimax(False, depth-1)
+                                           2] = self.minimax(False, depth-1, False)
                             unplace(self.state, self.n_player,
                                     primary_shape, col)
 
@@ -146,7 +143,7 @@ class LocalSearchMinMaxing:
                             place(self.state, self.n_player,
                                   secondary_shape, col)
                             possible_moves[col*2 +
-                                           1] = self.minimax(False, depth-1)
+                                           1] = self.minimax(False, depth-1, False)
                             unplace(self.state, self.n_player,
                                     secondary_shape, col)
                     else:
@@ -159,7 +156,7 @@ class LocalSearchMinMaxing:
                             place(self.state, (self.n_player + 1) %
                                   2, primary_shape, col)
                             possible_moves[col *
-                                           2] = self.minimax(True, depth-1)
+                                           2] = self.minimax(True, depth-1, False)
                             unplace(self.state, (self.n_player + 1) %
                                     2, primary_shape, col)
 
@@ -168,7 +165,7 @@ class LocalSearchMinMaxing:
                             place(self.state, (self.n_player + 1) %
                                   2, secondary_shape, col)
                             possible_moves[col*2 +
-                                           1] = self.minimax(True, depth-1)
+                                           1] = self.minimax(True, depth-1, False)
                             unplace(self.state, (self.n_player + 1) %
                                     2, secondary_shape, col)
 
