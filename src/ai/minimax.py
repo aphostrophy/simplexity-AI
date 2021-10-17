@@ -1,16 +1,17 @@
 import random
 import multiprocessing
-import math
+import copy
 from time import time
 from src.utility import is_win
 
 from src.constant import ShapeConstant
-from src.model import State
+from src.model import State, Board
 from src.utility import choose_heuristic, choose_move, other_shape, place, unplace
 
 from src.ai.heuristic import heuristic
 
-from typing import Tuple
+from typing import Tuple, List
+import math
 
 
 class Minimax:
@@ -51,16 +52,11 @@ class ProgressiveDeepeningMinimax:
         self.depth_limit = 1
         win_found = False
         while(True and not win_found):
-            (self.result_col.value, self.result_shape.value, win_found) = self.minimax(
-                maximizing=True, 
-                depth=self.depth_limit, 
-                alpha=-math.inf, 
-                beta=math.inf,
-            )
+            temp = self.minimax(maximizing=True, depth=self.depth_limit, alpha=-math.inf, beta=math.inf)
+            (self.result_col.value, self.result_shape.value, win_found) = temp
             self.depth_limit += 1
 
-    def minimax(self, maximizing: bool, depth: int, alpha: int, beta: int):
-    # def minimax(self, maximizing: bool, depth: int):
+    def minimax(self, maximizing: bool, depth: int, alpha, beta):
         if(depth == 0):
             return heuristic(self.state, self.n_player)
 
@@ -78,74 +74,61 @@ class ProgressiveDeepeningMinimax:
             if(self.state.board[0, col].shape == ShapeConstant.BLANK):
                 if(maximizing):
                     primary_shape = self.state.players[self.n_player].shape
+                    primary_quota = self.state.players[self.n_player].quota[primary_shape]
                     secondary_shape = other_shape(self.state.players[self.n_player].shape)
+                    secondary_quota = self.state.players[self.n_player].quota[secondary_shape]
 
                     # Check for primary shape
-                    if(self.state.players[self.n_player].quota[primary_shape] > 0):
+                    if(primary_quota > 0):
                         place(self.state, self.n_player, primary_shape, col)
-
-                        # possible_moves[col*2] = self.minimax(False, depth-1)
-
-                        # Alpha beta prunning.
-                        possible_moves[col*2] = self.minimax(False, depth-1, alpha, beta)
-                        result_col, result_shape = possible_moves[col*2]
-                        if(result_col + result_shape >= beta):
-                            return (result_col, result_shape)
-                        if(result_col + result_shape > alpha):
-                            alpha = result_col + result_shape
-
+                        temp = self.minimax(False, depth-1, alpha=alpha, beta=beta)
+                        score = temp[0] + temp[1]
+                        alpha = max(alpha, score)
+                        possible_moves[col*2] = temp
                         unplace(self.state, self.n_player, primary_shape, col)
 
+                        if(beta<=alpha):
+                            return temp
+
                     # Check for secondary shape
-                    if(self.state.players[self.n_player].quota[secondary_shape] > 0):
+                    if(secondary_quota > 0):
                         place(self.state, self.n_player, secondary_shape, col)
+                        temp = self.minimax(False, depth-1, alpha=alpha, beta=beta)
+                        score = temp[0] + temp[1]
+                        alpha = max(alpha, score)
+                        possible_moves[col*2+1] = temp
+                        unplace(self.state, self.n_player, secondary_shape, col)
 
-                        # possible_moves[col*2 + 1] = self.minimax(False, depth-1)
-
-                        # Alpha beta prunning.
-                        possible_moves[col*2 + 1] = self.minimax(False, depth-1, alpha, beta)
-                        result_col, result_shape = possible_moves[col*2 + 1]
-                        if(result_col + result_shape >= beta):
-                            return (result_col, result_shape)
-                        if(result_col + result_shape > alpha):
-                            alpha = result_col + result_shape
-
-                        unplace(self.state, self.n_player,secondary_shape, col)
+                        if(beta<=alpha):
+                            return temp
                 else:
                     primary_shape = self.state.players[(self.n_player + 1) % 2].shape
+                    primary_quota = self.state.players[(self.n_player + 1) % 2].quota[primary_shape]
                     secondary_shape = other_shape(self.state.players[(self.n_player + 1) % 2].shape)
-
+                    secondary_quota = self.state.players[(self.n_player + 1) % 2].quota[secondary_shape]
                     # Check for primary shape
-                    if(self.state.players[(self.n_player + 1) % 2].quota[primary_shape] > 0):
+                    if(primary_quota > 0):
                         place(self.state, (self.n_player + 1) % 2, primary_shape, col)
-
-                        # possible_moves[col*2] = self.minimax(True, depth-1)
-
-                        # Alpha beta prunning.
-                        possible_moves[col*2] = self.minimax(True, depth-1, alpha, beta)
-                        result_col, result_shape = possible_moves[col*2]
-                        if(result_col + result_shape <= alpha):
-                            return (result_col, result_shape)
-                        if(result_col + result_shape < beta):
-                            beta = result_col + result_shape
-                        
+                        temp = self.minimax(True, depth-1, alpha=alpha, beta=beta)
+                        score = temp[0] + temp[1]
+                        beta = min(beta, score)
+                        possible_moves[col*2] = temp
                         unplace(self.state, (self.n_player + 1) % 2, primary_shape, col)
 
+                        if(beta<=alpha):
+                            return temp
+
                     # Check for secondary shape
-                    if(self.state.players[(self.n_player + 1) % 2].quota[secondary_shape] > 0):
+                    if(secondary_quota > 0):
                         place(self.state, (self.n_player + 1) % 2, secondary_shape, col)
-
-                        # possible_moves[col*2+1] = self.minimax(True, depth-1)
-
-                        # Alpha beta prunning.
-                        possible_moves[col*2+1] = self.minimax(True, depth-1, alpha, beta)
-                        result_col, result_shape = possible_moves[col*2+1]
-                        if(result_col + result_shape <= alpha):
-                            return (result_col, result_shape)
-                        if(result_col + result_shape < beta):
-                            beta = result_col + result_shape
-
+                        temp = self.minimax(True, depth-1, alpha=alpha, beta=beta)
+                        score = temp[0] + temp[1]
+                        beta = min(beta, score)
+                        possible_moves[col*2+1] = temp
                         unplace(self.state, (self.n_player + 1) % 2, secondary_shape, col)
+
+                        if(beta<=alpha):
+                            return temp
 
         if(depth == self.depth_limit):  # Pasti Maximizing
             # print(f"POSSIBLE MOVES DEPTH {depth}", possible_moves)

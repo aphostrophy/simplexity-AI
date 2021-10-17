@@ -1,5 +1,6 @@
 from src.model.state import State
 from src.constant import ShapeConstant, GameConstant
+from src.utility import is_win
 #Player 0 : RED O (Only have red pieces)
 #Player 1 : BLUE X (Only have blue pieces)
 #Utamakan shape
@@ -14,6 +15,15 @@ def heuristic(state:State, player: int):
   for col in range(7):
     for row in range(state.board.row-1,-1,-1):
       #Nanti tambahin kalau win kasih poin + INF atau - INF
+      #somehow ini tidak membantu
+
+      # winning_tuple = is_win(state.board)
+      # if(winning_tuple != None):
+      #   if(winning_tuple[0] == state.players[player].shape):
+      #     return(88888,88888)
+      #   else:
+      #     return (-88888, -88888)
+
       if state.board[row, col].shape == ShapeConstant.BLANK:
         if(row==5):
           if(col==0):
@@ -67,4 +77,7 @@ def heuristic(state:State, player: int):
               sum_colors -= state.board[row,col-1].color == state.players[minimizing_player].color
               sum_shapes -= state.board[row,col-1].shape == state.players[minimizing_player].shape
         break
+    
+    
+    
   return (sum_colors,sum_shapes)
