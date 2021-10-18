@@ -180,7 +180,7 @@ class ProgressiveDeepeningMinimax:
                     if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
                         max_tuple = tuple
                         col = idx
-        return (col//2 + col % 2, col % 2, max_tuple[0] == 88888)
+        return (col//2, col % 2, max_tuple[0] == 88888)
 
     def choose_heuristic(self, possible_moves: list, maximizing: bool) -> Tuple:
         if(maximizing):

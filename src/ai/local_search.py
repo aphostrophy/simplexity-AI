@@ -4,7 +4,6 @@ import multiprocessing
 from time import time
 from src.utility import is_win
 from src.utility import place
-from src.ai.heuristic import heuristic
 
 from src.constant import ColorConstant, ShapeConstant
 from src.model import Piece, State
@@ -55,7 +54,7 @@ class LocalSearchMinMaxing:
             if(state.board[0, col].shape == ShapeConstant.BLANK and self.state.players[self.n_player].quota[primary_shape] > 0):
                 place(self.state, self.n_player, primary_shape, col)
                 possible_moves.append(
-                    (col, True, heuristic(self.state, self.n_player)))
+                    (col, True, self.heuristic(self.state, self.n_player)))
                 self.unplace(self.state, self.n_player, primary_shape, col)
 
         # Insert with secondary shape
@@ -63,7 +62,7 @@ class LocalSearchMinMaxing:
             if(state.board[0, col].shape == ShapeConstant.BLANK and self.state.players[self.n_player].quota[secondary_shape] > 0):
                 place(self.state, self.n_player, secondary_shape, col)
                 possible_moves.append(
-                    (col, False, heuristic(self.state, self.n_player)))
+                    (col, False, self.heuristic(self.state, self.n_player)))
                 self.unplace(self.state, self.n_player, secondary_shape, col)
 
         # Sort all possible moves
@@ -203,6 +202,7 @@ class LocalSearchMinMaxing:
         return (sum_colors, sum_shapes)
 
     def choose_move(self, possible_moves: list):  # Maximizing move
+        print(possible_moves)
         max_tuple = (-math.inf, 0)
         col = -1
         for idx, tuple in enumerate(possible_moves):
@@ -215,7 +215,7 @@ class LocalSearchMinMaxing:
                     if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
                         max_tuple = tuple
                         col = idx
-        return (col//2 + col % 2, col % 2, max_tuple[0] == 88888)
+        return (col//2, col % 2, max_tuple[0] == 88888)
 
     def choose_heuristic(self, possible_moves: list, maximizing: bool) -> Tuple:
         if(maximizing):
@@ -254,7 +254,7 @@ class LocalSearchMinMaxing:
 
     def minimax(self, maximizing: bool, depth: int, alpha, beta, is_start: bool):
         if(depth == 0):
-            return heuristic(self.state, self.n_player)
+            return self.heuristic(self.state, self.n_player)
 
         # possible_moves[0] = col 0 primary shape, 1 = col 0 secondary shape , 2 = col 1 primary shape, 3 = col 1 secondary shape, etc...
         possible_moves = [None for _ in range(14)]
@@ -269,7 +269,6 @@ class LocalSearchMinMaxing:
         # If depth == 1 and the first move then use initial move from local search
         if(depth == 1 and is_start):
             initial_moves = self.generateAllMoves(self.state)
-            print(initial_moves)
             primary_shape = self.state.players[self.n_player].shape
             secondary_shape = self.other_shape(
                 self.state.players[self.n_player].shape)
@@ -288,14 +287,14 @@ class LocalSearchMinMaxing:
                     if(beta <= alpha):
                         return temp
                 else:
-                    place(self.state, self.n_player, primary_shape, move[0])
+                    place(self.state, self.n_player, secondary_shape, move[0])
                     temp = self.minimax(
                         False, depth-1, alpha=alpha, beta=beta, is_start=False)
                     score = temp[0] + temp[1]
                     alpha = max(alpha, score)
                     possible_moves[move[0]*2+1] = temp
                     self.unplace(self.state, self.n_player,
-                                 primary_shape, move[0])
+                                 secondary_shape, move[0])
 
                     if(beta <= alpha):
                         return temp
