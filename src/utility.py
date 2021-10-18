@@ -1,9 +1,8 @@
 import pickle
-import math
 from typing import Tuple
 
 from src.model import Piece, Board, State
-from src.constant import ColorConstant, ShapeConstant, GameConstant
+from src.constant import ShapeConstant, GameConstant
 
 
 def dump(obj, path):
@@ -154,65 +153,6 @@ def place(state: State, n_player: int, shape: str, col: str) -> int:
             return row
 
     return -1
-
-# Tambahan pribadi
-
-
-def unplace(state: State, n_player: int, shape: str, col: str) -> int:
-
-    for row in range(state.board.row):
-        if state.board[row, col].shape != ShapeConstant.BLANK:
-            piece = Piece(ShapeConstant.BLANK, ColorConstant.BLACK)
-            state.board.set_piece(row, col, piece)
-            state.players[n_player].quota[shape] += 1
-            return row
-
-    return -1
-
-
-def other_shape(shape: str):
-    return (ShapeConstant.CROSS if shape == ShapeConstant.CIRCLE else ShapeConstant.CIRCLE)
-
-
-def choose_heuristic(possible_moves: list, maximizing: bool) -> Tuple:
-    if(maximizing):
-        max_tuple = (-math.inf, -math.inf)
-        for tuple in possible_moves:
-            if(tuple != None):
-                tuple_sum = tuple[0] + tuple[1]
-                if(tuple_sum > max_tuple[0] + max_tuple[1]):
-                    max_tuple = tuple
-                elif(tuple_sum == max_tuple[0] + max_tuple[1]):
-                    if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
-                        max_tuple = tuple
-        return max_tuple
-    else:
-        min_tuple = (math.inf, math.inf)
-        for tuple in possible_moves:
-            if(tuple != None):
-                tuple_sum = tuple[0] + tuple[1]
-                if(tuple_sum < min_tuple[0] + min_tuple[1]):
-                    min_tuple = tuple
-                elif(tuple_sum == min_tuple[0] + min_tuple[1]):
-                    if(tuple[1] < min_tuple[1]):  # Tie Breaker Shape
-                        min_tuple = tuple
-        return min_tuple
-
-
-def choose_move(possible_moves: list):  # Maximizing move
-    max_tuple = (-math.inf, 0)
-    col = -1
-    for idx, tuple in enumerate(possible_moves):
-        if(tuple != None):
-            tuple_sum = tuple[0] + tuple[1]
-            if(tuple_sum > max_tuple[0] + max_tuple[1]):
-                max_tuple = tuple
-                col = idx
-            elif(tuple_sum == max_tuple[0] + max_tuple[1]):
-                if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
-                    max_tuple = tuple
-                    col = idx
-    return (col//2 + col % 2, col % 2, max_tuple[0] == 88888)
 
 
 def place_debug(state: State, n_player: int, shape: str, col: str) -> int:
