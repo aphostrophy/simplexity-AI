@@ -15,7 +15,7 @@ def sortPossibleMoves(moves_score):
     return moves_score[2][0] + moves_score[2][1]
 
 
-class LocalSearch:
+class LocalSearchGroup51:
     def __init__(self):
         pass
 
@@ -25,8 +25,6 @@ class LocalSearch:
         lsmm = LocalSearchMinMaxing(state, n_player)
 
         best_movement = lsmm.result_after(thinking_time)  # minimax algorithm
-
-        print(f'BEST MOVE PLAYER {n_player+1}', best_movement)
 
         return best_movement
 
@@ -389,7 +387,6 @@ class LocalSearchMinMaxing:
                                 return temp
 
         if(depth == self.depth_limit):  # Pasti Maximizing
-            # print(f"POSSIBLE MOVES DEPTH {depth}", possible_moves)
             return self.choose_move(possible_moves)
 
         # Standard Case

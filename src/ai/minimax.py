@@ -11,7 +11,7 @@ from typing import Tuple
 import math
 
 
-class Minimax:
+class MinimaxGroup51:
     def __init__(self):
         pass
 
@@ -21,8 +21,6 @@ class Minimax:
         pdm = ProgressiveDeepeningMinimax(state, n_player)
 
         best_movement = pdm.result_after(thinking_time)
-
-        print(f'BEST MOVE PLAYER {n_player+1}', best_movement)
 
         return best_movement
 
@@ -313,7 +311,6 @@ class ProgressiveDeepeningMinimax:
                             return temp
 
         if(depth == self.depth_limit):  # Pasti Maximizing
-            print(f"POSSIBLE MOVES DEPTH {depth}", possible_moves)
             return self.choose_move(possible_moves)
 
         # Standard Case
