@@ -189,6 +189,7 @@ class ProgressiveDeepeningMinimax:
                         elif(tuple[1] == max_tuple[1]):
                           if(abs(7-idx)<abs(7-oldIndex)):
                             max_tuple = tuple
+                            oldIndex = idx
             return max_tuple
         else:
             min_tuple = (math.inf, math.inf)

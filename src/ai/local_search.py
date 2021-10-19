@@ -250,6 +250,7 @@ class LocalSearchMinMaxing:
                         elif(tuple[1] == min_tuple[1]):
                           if(abs(7-idx)<abs(7-oldIndex)):
                             min_tuple = tuple
+                            oldIndex = idx
             return min_tuple
 
     def unplace(self, state: State, n_player: int, shape: str, col: str) -> int:
