@@ -202,7 +202,6 @@ class LocalSearchMinMaxing:
         return (sum_colors, sum_shapes)
 
     def choose_move(self, possible_moves: list):  # Maximizing move
-        print(possible_moves)
         max_tuple = (-math.inf, 0)
         col = -1
         for idx, tuple in enumerate(possible_moves):
@@ -220,24 +219,36 @@ class LocalSearchMinMaxing:
     def choose_heuristic(self, possible_moves: list, maximizing: bool) -> Tuple:
         if(maximizing):
             max_tuple = (-math.inf, -math.inf)
-            for tuple in possible_moves:
+            oldIndex = math.inf
+            for idx,tuple in enumerate(possible_moves):
                 if(tuple != None):
                     tuple_sum = tuple[0] + tuple[1]
                     if(tuple_sum > max_tuple[0] + max_tuple[1]):
                         max_tuple = tuple
+                        oldIndex = idx
                     elif(tuple_sum == max_tuple[0] + max_tuple[1]):
                         if(tuple[1] > max_tuple[1]):  # Tie Breaker Shape
+                          max_tuple = tuple
+                          oldIndex = idx
+                        elif(tuple[1] == max_tuple[1]):
+                          if(abs(7-idx)<abs(7-oldIndex)):
                             max_tuple = tuple
             return max_tuple
         else:
             min_tuple = (math.inf, math.inf)
-            for tuple in possible_moves:
+            oldIndex = math.inf
+            for idx,tuple in enumerate(possible_moves):
                 if(tuple != None):
                     tuple_sum = tuple[0] + tuple[1]
                     if(tuple_sum < min_tuple[0] + min_tuple[1]):
                         min_tuple = tuple
+                        oldIndex = idx
                     elif(tuple_sum == min_tuple[0] + min_tuple[1]):
                         if(tuple[1] < min_tuple[1]):  # Tie Breaker Shape
+                            min_tuple = tuple
+                            oldIndex = idx
+                        elif(tuple[1] == min_tuple[1]):
+                          if(abs(7-idx)<abs(7-oldIndex)):
                             min_tuple = tuple
             return min_tuple
 
@@ -253,18 +264,17 @@ class LocalSearchMinMaxing:
         return -1
 
     def minimax(self, maximizing: bool, depth: int, alpha, beta, is_start: bool):
-        if(depth == 0):
-            return self.heuristic(self.state, self.n_player)
-
-        # possible_moves[0] = col 0 primary shape, 1 = col 0 secondary shape , 2 = col 1 primary shape, 3 = col 1 secondary shape, etc...
-        possible_moves = [None for _ in range(14)]
-
         winning_tuple = is_win(self.state.board)
         if(winning_tuple != None):
             if(winning_tuple[0] == self.state.players[self.n_player].shape):
                 return (88888, 88888)
             else:
                 return (-88888, -88888)
+        if(depth == 0):
+            return self.heuristic(self.state, self.n_player)
+
+        # possible_moves[0] = col 0 primary shape, 1 = col 0 secondary shape , 2 = col 1 primary shape, 3 = col 1 secondary shape, etc...
+        possible_moves = [None for _ in range(14)]
 
         # If depth == 1 and the first move then use initial move from local search
         if(depth == 1 and is_start):
