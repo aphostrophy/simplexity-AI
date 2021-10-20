@@ -30,12 +30,8 @@ class Game:
 
         board = Board(config.row, config.col)
         players = [
-            Player(
-                GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR, config.quota[0]
-            ),
-            Player(
-                GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR, config.quota[1]
-            ),
+            Player(GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR, config.quota[0]),
+            Player(GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR, config.quota[1]),
         ]
 
         self.__gen_player()
@@ -45,7 +41,7 @@ class Game:
         if self.config.game_type == GameConstant.BVB:
             if not self.config.is_dump:
                 # You can change model used here
-                model1 = MinimaxGroup51()
+                model1 = LocalSearchGroup51()
                 model2 = LocalSearchGroup51()
             else:
                 # Don't change this
@@ -88,9 +84,7 @@ class Game:
                     choosen_col, choosen_shape = self.__input()
                 else:
                     start = time()
-                    choosen_col, choosen_shape = self.bot[player_turn].find(
-                        self.state, player_turn, self.config.thinking_time
-                    )
+                    choosen_col, choosen_shape = self.bot[player_turn].find(self.state, player_turn, self.config.thinking_time)
                     print(f'Runtime: {time() - start}')
 
             elif self.config.game_type == GameConstant.PVP:
@@ -98,9 +92,7 @@ class Game:
 
             else:  # BVB
                 start = time()
-                choosen_col, choosen_shape = self.bot[player_turn].find(
-                    self.state, player_turn, self.config.thinking_time
-                )
+                choosen_col, choosen_shape = self.bot[player_turn].find(self.state, player_turn, self.config.thinking_time)
                 print(f'Runtime: {time() - start}')
 
             if self.__is_valid(choosen_col, choosen_shape):
@@ -136,9 +128,7 @@ class Game:
         if winner:
             for i, player in enumerate(self.state.players):
                 if winner[0] == player.shape and winner[1] == player.color:
-                    print(
-                        f"Player {i + 1} with color {player.color} and shape {player.shape} Win"
-                    )
+                    print(f"Player {i + 1} with color {player.color} and shape {player.shape} Win")
                     break
         else:
             print("DRAW")

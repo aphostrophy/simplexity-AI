@@ -85,7 +85,7 @@ class LocalSearchMinMaxing:
 
         while(True and not win_found):
             temp = self.minimax(maximizing=True, depth=self.depth_limit,
-                                alpha=-math.inf, beta=math.inf, is_start=True)
+                                alpha=-math.inf, beta=math.inf, is_start=True, alpha_tuple=None, beta_tuple=None)
             (self.result_col.value, self.result_shape.value, win_found) = temp
             self.depth_limit += 1
 
@@ -262,13 +262,15 @@ class LocalSearchMinMaxing:
 
         return -1
 
-    def minimax(self, maximizing: bool, depth: int, alpha, beta, is_start: bool):
+    def minimax(self, maximizing: bool, depth: int, alpha, beta, is_start: bool, alpha_tuple : tuple, beta_tuple : tuple):
         winning_tuple = is_win(self.state.board)
+        
         if(winning_tuple != None):
             if(winning_tuple[0] == self.state.players[self.n_player].shape):
                 return (88888, 88888)
             else:
                 return (-88888, -88888)
+
         if(depth == 0):
             return self.heuristic(self.state, self.n_player)
 
@@ -283,30 +285,32 @@ class LocalSearchMinMaxing:
                 self.state.players[self.n_player].shape)
             for move in initial_moves:
                 if(move[1]):  # primary shape
-                    place(self.state, self.n_player,
-                          primary_shape, move[0])
-                    temp = self.minimax(
-                        False, depth-1, alpha=alpha, beta=beta, is_start=False)
+                    place(self.state, self.n_player,primary_shape, move[0])
+
+                    temp = self.minimax(False, depth-1, alpha=alpha, beta=beta, is_start=False, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                     score = temp[0] + temp[1]
+
                     alpha = max(alpha, score)
                     possible_moves[move[0]*2] = temp
-                    self.unplace(self.state, self.n_player,
-                                 primary_shape, move[0])
+
+                    self.unplace(self.state, self.n_player,primary_shape, move[0])
 
                     if(beta <= alpha):
-                        return temp
+                        return (beta_tuple[0]+1,beta_tuple[1]+1)
+
                 else:
                     place(self.state, self.n_player, secondary_shape, move[0])
-                    temp = self.minimax(
-                        False, depth-1, alpha=alpha, beta=beta, is_start=False)
+
+                    temp = self.minimax(False, depth-1, alpha=alpha, beta=beta, is_start=False, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                     score = temp[0] + temp[1]
+
                     alpha = max(alpha, score)
                     possible_moves[move[0]*2+1] = temp
-                    self.unplace(self.state, self.n_player,
-                                 secondary_shape, move[0])
+
+                    self.unplace(self.state, self.n_player,secondary_shape, move[0])
 
                     if(beta <= alpha):
-                        return temp
+                        return (beta_tuple[0]+1,beta_tuple[1]+1)
 
         else:  # Depth > 1 then minmaxing
             for col in range(7):
@@ -314,77 +318,75 @@ class LocalSearchMinMaxing:
                     if(maximizing):
                         primary_shape = self.state.players[self.n_player].shape
                         primary_quota = self.state.players[self.n_player].quota[primary_shape]
-                        secondary_shape = self.other_shape(
-                            self.state.players[self.n_player].shape)
+                        secondary_shape = self.other_shape(self.state.players[self.n_player].shape)
                         secondary_quota = self.state.players[self.n_player].quota[secondary_shape]
 
                        # Check for primary shape
                         if(primary_quota > 0):
-                            place(self.state, self.n_player,
-                                  primary_shape, col)
-                            temp = self.minimax(
-                                False, depth-1, alpha=alpha, beta=beta, is_start=False)
+                            place(self.state, self.n_player,primary_shape, col)
+                            
+                            temp = self.minimax(False, depth-1, alpha=alpha, beta=beta, is_start=False, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                             score = temp[0] + temp[1]
+
                             alpha = max(alpha, score)
+                            alpha_tuple = (temp[0],temp[1])
+
                             possible_moves[col*2] = temp
-                            self.unplace(self.state, self.n_player,
-                                         primary_shape, col)
+                            self.unplace(self.state, self.n_player,primary_shape, col)
 
                             if(beta <= alpha):
-                                return temp
+                                return (beta_tuple[0]+1,beta_tuple[1]+1)
 
                         # Check for secondary shape
                         if(secondary_quota > 0):
-                            place(self.state, self.n_player,
-                                  secondary_shape, col)
-                            temp = self.minimax(
-                                False, depth-1, alpha=alpha, beta=beta, is_start=False)
+                            place(self.state, self.n_player,secondary_shape, col)
+                            
+                            temp = self.minimax(False, depth-1, alpha=alpha, beta=beta, is_start=False, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                             score = temp[0] + temp[1]
+
                             alpha = max(alpha, score)
+                            alpha_tuple = (temp[0],temp[1])
                             possible_moves[col*2+1] = temp
-                            self.unplace(self.state, self.n_player,
-                                         secondary_shape, col)
+                            self.unplace(self.state, self.n_player,secondary_shape, col)
 
                             if(beta <= alpha):
-                                return temp
+                                return (beta_tuple[0]+1,beta_tuple[1]+1)
                     else:
-                        primary_shape = self.state.players[(
-                            self.n_player + 1) % 2].shape
-                        primary_quota = self.state.players[(
-                            self.n_player + 1) % 2].quota[primary_shape]
-                        secondary_shape = self.other_shape(
-                            self.state.players[(self.n_player + 1) % 2].shape)
-                        secondary_quota = self.state.players[(
-                            self.n_player + 1) % 2].quota[secondary_shape]
+                        primary_shape = self.state.players[(self.n_player + 1) % 2].shape
+                        primary_quota = self.state.players[(self.n_player + 1) % 2].quota[primary_shape]
+                        secondary_shape = self.other_shape(self.state.players[(self.n_player + 1) % 2].shape)
+                        secondary_quota = self.state.players[(self.n_player + 1) % 2].quota[secondary_shape]
                         # Check for primary shape
                         if(primary_quota > 0):
-                            place(self.state, (self.n_player + 1) %
-                                  2, primary_shape, col)
-                            temp = self.minimax(
-                                True, depth-1, alpha=alpha, beta=beta, is_start=False)
+                            place(self.state, (self.n_player + 1) %2, primary_shape, col)
+                            
+                            temp = self.minimax(True, depth-1, alpha=alpha, beta=beta, is_start=False, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                             score = temp[0] + temp[1]
+
                             beta = min(beta, score)
+                            beta_tuple = (temp[0],temp[1])
+
                             possible_moves[col*2] = temp
-                            self.unplace(self.state, (self.n_player + 1) %
-                                         2, primary_shape, col)
+                            self.unplace(self.state, (self.n_player + 1) %2, primary_shape, col)
 
                             if(beta <= alpha):
-                                return temp
+                                return (alpha_tuple[0]-1,alpha_tuple[1]-1)
 
                         # Check for secondary shape
                         if(secondary_quota > 0):
-                            place(self.state, (self.n_player + 1) %
-                                  2, secondary_shape, col)
-                            temp = self.minimax(
-                                True, depth-1, alpha=alpha, beta=beta, is_start=False)
+                            place(self.state, (self.n_player + 1) %2, secondary_shape, col)
+                            
+                            temp = self.minimax(True, depth-1, alpha=alpha, beta=beta, is_start=False, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                             score = temp[0] + temp[1]
+
                             beta = min(beta, score)
+                            beta_tuple = (temp[0],temp[1])
+
                             possible_moves[col*2+1] = temp
-                            self.unplace(self.state, (self.n_player + 1) %
-                                         2, secondary_shape, col)
+                            self.unplace(self.state, (self.n_player + 1) %2, secondary_shape, col)
 
                             if(beta <= alpha):
-                                return temp
+                                return (alpha_tuple[0]-1,alpha_tuple[1]-1)
 
         if(depth == self.depth_limit):  # Pasti Maximizing
             return self.choose_move(possible_moves)
