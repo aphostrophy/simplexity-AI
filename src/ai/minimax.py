@@ -22,6 +22,8 @@ class MinimaxGroup51:
 
         best_movement = pdm.result_after(thinking_time)
 
+        print(f'BEST MOVE PLAYER {n_player+1}', best_movement)
+
         return best_movement
 
 
@@ -51,7 +53,7 @@ class ProgressiveDeepeningMinimax:
         win_found = False
         while(True and not win_found):
             temp = self.minimax(
-                maximizing=True, depth=self.depth_limit, alpha=-math.inf, beta=math.inf)
+                maximizing=True, depth=self.depth_limit, alpha=-math.inf, beta=math.inf, alpha_tuple=None, beta_tuple=None)
             (self.result_col.value, self.result_shape.value, win_found) = temp
             self.depth_limit += 1
 
@@ -172,7 +174,7 @@ class ProgressiveDeepeningMinimax:
 
     def choose_heuristic(self, possible_moves: list, maximizing: bool) -> Tuple:
         if(maximizing):
-            max_tuple = (-math.inf, -math.inf)
+            max_tuple = (-math.inf, 0)
             oldIndex = math.inf
             for idx,tuple in enumerate(possible_moves):
                 if(tuple != None):
@@ -190,7 +192,7 @@ class ProgressiveDeepeningMinimax:
                             oldIndex = idx
             return max_tuple
         else:
-            min_tuple = (math.inf, math.inf)
+            min_tuple = (math.inf, 0)
             oldIndex = math.inf
             for idx,tuple in enumerate(possible_moves):
                 if(tuple != None):
@@ -221,7 +223,9 @@ class ProgressiveDeepeningMinimax:
     def other_shape(self, shape: str):
         return (ShapeConstant.CROSS if shape == ShapeConstant.CIRCLE else ShapeConstant.CIRCLE)
 
-    def minimax(self, maximizing: bool, depth: int, alpha, beta):
+    def minimax(self, maximizing: bool, depth: int, alpha : int, beta : int, alpha_tuple : tuple, beta_tuple : tuple):
+        if(depth==self.depth_limit):
+          print("Minimax starts with alpha",alpha,"and beta",beta)
         winning_tuple = is_win(self.state.board)
         if(winning_tuple != None):
             if(winning_tuple[0] == self.state.players[self.n_player].shape):
@@ -234,6 +238,7 @@ class ProgressiveDeepeningMinimax:
 
         # possible_moves[0] = col 0 primary shape, 1 = col 0 secondary shape , 2 = col 1 primary shape, 3 = col 1 secondary shape, etc...
         possible_moves = [None for _ in range(14)]
+        
 
         for col in range(7):
             if(self.state.board[0, col].shape == ShapeConstant.BLANK):
@@ -248,29 +253,35 @@ class ProgressiveDeepeningMinimax:
                     if(primary_quota > 0):
                         place(self.state, self.n_player, primary_shape, col)
                         temp = self.minimax(
-                            False, depth-1, alpha=alpha, beta=beta)
+                            False, depth-1, alpha=alpha, beta=beta, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                         score = temp[0] + temp[1]
+                        if(score > alpha and self.depth_limit == 2):
+                          print('OLD ALPHA',alpha,'NEW ALPHA',score)
                         alpha = max(alpha, score)
+                        alpha_tuple = (temp[0],temp[1])
                         possible_moves[col*2] = temp
                         self.unplace(self.state, self.n_player,
                                      primary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
-                            return temp
+                        if(beta <= alpha):
+                          return (beta_tuple[0]+1,beta_tuple[1]+1)
 
                     # Check for secondary shape
                     if(secondary_quota > 0):
                         place(self.state, self.n_player, secondary_shape, col)
                         temp = self.minimax(
-                            False, depth-1, alpha=alpha, beta=beta)
+                            False, depth-1, alpha=alpha, beta=beta, alpha_tuple=alpha_tuple, beta_tuple=beta_tuple)
                         score = temp[0] + temp[1]
+                        if(score > alpha and self.depth_limit == 2):
+                          print('OLD ALPHA',alpha,'NEW ALPHA',score)
                         alpha = max(alpha, score)
+                        alpha_tuple = (temp[0],temp[1])
                         possible_moves[col*2+1] = temp
                         self.unplace(self.state, self.n_player,
                                      secondary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
-                            return temp
+                        if(beta <= alpha):
+                          return (beta_tuple[0]+1,beta_tuple[1]+1)
                 else:
                     primary_shape = self.state.players[(
                         self.n_player + 1) % 2].shape
@@ -285,32 +296,46 @@ class ProgressiveDeepeningMinimax:
                         place(self.state, (self.n_player + 1) %
                               2, primary_shape, col)
                         temp = self.minimax(
-                            True, depth-1, alpha=alpha, beta=beta)
+                            True, depth-1, alpha=alpha, beta=beta, alpha_tuple=alpha_tuple,beta_tuple = beta_tuple)
                         score = temp[0] + temp[1]
+                        if(score < beta and self.depth_limit == 2):
+                          print('OLD BETA',beta,'NEW BETA',score)
                         beta = min(beta, score)
+                        beta_tuple = (temp[0],temp[1])
                         possible_moves[col*2] = temp
                         self.unplace(self.state, (self.n_player + 1) %
                                      2, primary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
-                            return temp
+                        if(beta <= alpha):
+                          if(self.depth_limit == 2 and temp[0]==1 and temp[1]==3):
+                            print("TEMP",temp,alpha,beta)
+                          return (alpha_tuple[0]-1,alpha_tuple[1]-1)
 
                     # Check for secondary shape
                     if(secondary_quota > 0):
                         place(self.state, (self.n_player + 1) %
                               2, secondary_shape, col)
                         temp = self.minimax(
-                            True, depth-1, alpha=alpha, beta=beta)
+                            True, depth-1, alpha=alpha, beta=beta, alpha_tuple = alpha_tuple, beta_tuple=beta_tuple)
                         score = temp[0] + temp[1]
+                        if(score < beta and self.depth_limit == 2):
+                          print('OLD BETA',beta,'NEW BETA',score)
                         beta = min(beta, score)
+                        beta_tuple = (temp[0],temp[1])
                         possible_moves[col*2+1] = temp
                         self.unplace(self.state, (self.n_player + 1) %
                                      2, secondary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
-                            return temp
+                        if(beta <= alpha):
+                          if(self.depth_limit == 2 and temp[0]==1 and temp[1]==3):
+                            print("TEMP",temp,alpha,beta)
+                          # return self.choose_heuristic(possible_moves, maximizing)
+                          return (alpha_tuple[0]-1,alpha_tuple[1]-1)
 
         if(depth == self.depth_limit):  # Pasti Maximizing
+            print(f"POSSIBLE MOVES DEPTH {depth}", possible_moves)
+            # for idx,moves in enumerate(possible_moves):
+            #   print("COL",idx//2 , "SHAPE", self.state.players[self.n_player].shape if idx % 2 == 0 else self.other_shape(self.state.players[self.n_player].shape), "POINT",moves)
             return self.choose_move(possible_moves)
 
         # Standard Case
