@@ -22,6 +22,8 @@ class MinimaxGroup51:
 
         best_movement = pdm.result_after(thinking_time)
 
+        print(f'BEST MOVE PLAYER {n_player+1}', best_movement)
+
         return best_movement
 
 
@@ -255,7 +257,7 @@ class ProgressiveDeepeningMinimax:
                         self.unplace(self.state, self.n_player,
                                      primary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
+                        if(beta <= alpha):
                             return temp
 
                     # Check for secondary shape
@@ -269,8 +271,8 @@ class ProgressiveDeepeningMinimax:
                         self.unplace(self.state, self.n_player,
                                      secondary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
-                            return temp
+                        # if(beta <= alpha and self.state.round != 14):
+                        #     return temp
                 else:
                     primary_shape = self.state.players[(
                         self.n_player + 1) % 2].shape
@@ -292,7 +294,7 @@ class ProgressiveDeepeningMinimax:
                         self.unplace(self.state, (self.n_player + 1) %
                                      2, primary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
+                        if(beta <= alpha):
                             return temp
 
                     # Check for secondary shape
@@ -307,10 +309,13 @@ class ProgressiveDeepeningMinimax:
                         self.unplace(self.state, (self.n_player + 1) %
                                      2, secondary_shape, col)
 
-                        if(beta <= alpha and self.state.round != 14):
+                        if(beta <= alpha):
                             return temp
 
         if(depth == self.depth_limit):  # Pasti Maximizing
+            print(f"POSSIBLE MOVES DEPTH {depth}", possible_moves)
+            # for idx,moves in enumerate(possible_moves):
+            #   print("COL",idx//2 , "SHAPE", self.state.players[self.n_player].shape if idx % 2 == 0 else self.other_shape(self.state.players[self.n_player].shape), "POINT",moves)
             return self.choose_move(possible_moves)
 
         # Standard Case
